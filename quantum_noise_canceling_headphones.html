@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QSFT 3D Simulation Engine - USKM Framework</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- OrbitControls CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        body { background-color: #030712; color: #f3f4f6; overflow: hidden; font-family: ui-sans-serif, system-ui, sans-serif; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0b0f19; }
+        ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 3px; }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col">
+
+    <!-- Top Header Navigation Bar -->
+    <header class="h-14 border-b border-gray-800 bg-gray-950/80 backdrop-blur flex items-center justify-between px-6 z-20">
+        <div class="flex items-center space-x-3">
+            <div class="h-3 w-3 rounded-full bg-cyan-400 animate-pulse"></div>
+            <h1 class="font-bold text-sm tracking-widest text-cyan-400 uppercase">QSFT // USKM Matrix Engine v2.4</h1>
+        </div>
+        <div class="flex items-center space-x-6 text-xs text-gray-400">
+            <div>Axis Status: <span class="text-emerald-400 font-mono">X-Y-Z-4D ACTIVE</span></div>
+            <div>Lane 1 Constraint: <span class="text-amber-400 font-mono">LOCKED (2-State Max)</span></div>
+            <div id="system-entropy" class="font-mono bg-gray-900 px-2 py-1 rounded border border-gray-800 text-cyan-300">Entropy: 14.2%</div>
+        </div>
+    </header>
+
+    <!-- Main Workspace Layout -->
+    <div class="flex-1 flex overflow-hidden relative">
+        
+        <!-- Left 3D Viewport Canvas Container -->
+        <div id="canvas-container" class="flex-1 relative bg-black">
+            <!-- Overlay Instructions -->
+            <div class="absolute top-4 left-4 pointer-events-none z-10 bg-gray-950/70 border border-gray-800/80 backdrop-blur p-3 rounded-lg max-w-xs text-xs text-gray-300 space-y-1">
+                <p class="font-semibold text-cyan-400">Spatial Matrix Navigation</p>
+                <p>• Left Click + Drag: Rotate 3D View</p>
+                <p>• Right Click + Drag: Pan Grid</p>
+                <p>• Scroll: Zoom Substrate</p>
+            </div>
+        </div>
+
+        <!-- Right Controller & Diagnostic Panel -->
+        <div class="w-96 bg-gray-950 border-l border-gray-800 flex flex-col z-10 select-none">
+            
+            <!-- Panel Header -->
+            <div class="p-4 border-b border-gray-800 bg-gray-900/50">
+                <h2 class="text-sm font-semibold tracking-wide text-gray-200">Simulation Control Matrix</h2>
+                <p class="text-xs text-gray-400">Execute Wheelerian non-local collapse mechanics.</p>
+            </div>
+
+            <!-- Controller Scroll Area -->
+            <div class="flex-1 overflow-y-auto p-4 space-y-6">
+                
+                <!-- Section 1: 4-Step Collapse Automation Engine -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-cyan-400">4-Step Collapse Engine</span>
+                        <span id="step-badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800">Ready</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="runCollapseStep(1)" id="btn-step-1" class="px-3 py-2 text-xs font-medium bg-gray-900 hover:bg-gray-800 border border-gray-800 hover:border-cyan-500/50 text-gray-200 rounded transition flex flex-col items-center space-y-1">
+                            <span class="text-[10px] text-gray-500 font-mono">01</span>
+                            <span>Observe Node</span>
+                        </button>
+                        <button onclick="runCollapseStep(2)" id="btn-step-2" disabled class="px-3 py-2 text-xs font-medium bg-gray-900/50 border border-gray-900 text-gray-600 rounded transition flex flex-col items-center space-y-1 cursor-not-allowed">
+                            <span class="text-[10px] text-gray-700 font-mono">02</span>
+                            <span>Constraint Zone</span>
+                        </button>
+                        <button onclick="runCollapseStep(3)" id="btn-step-3" disabled class="px-3 py-2 text-xs font-medium bg-gray-900/50 border border-gray-900 text-gray-600 rounded transition flex flex-col items-center space-y-1 cursor-not-allowed">
+                            <span class="text-[10px] text-gray-700 font-mono">03</span>
+                            <span>Lock Parameters</span>
+                        </button>
+                        <button onclick="runCollapseStep(4)" id="btn-step-4" disabled class="px-3 py-2 text-xs font-medium bg-gray-900/50 border border-gray-900 text-gray-600 rounded transition flex flex-col items-center space-y-1 cursor-not-allowed">
+                            <span class="text-[10px] text-gray-700 font-mono">04</span>
+                            <span>Non-Local Flip</span>
+                        </button>
+                    </div>
+                    
+                    <button onclick="resetSimulation()" class="w-full py-2 text-xs font-medium bg-gray-900 hover:bg-red-950/40 border border-gray-800 hover:border-red-500/30 text-gray-400 hover:text-red-300 rounded transition">
+                        Reset Matrix State
+                    </button>
+                </div>
+
+                <hr class="border-gray-800/80">
+
+                <!-- Section 2: Live Parameter UI Controls -->
+                <div class="space-y-4">
+                    <span class="text-xs font-bold uppercase tracking-wider text-cyan-400">Substrate Parameter Adjustments</span>
+                    
+                    <!-- Noise/Instability Filter Slider -->
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-gray-400">Noise / Instability Filter</span>
+                            <span id="noise-val" class="font-mono text-cyan-400">0.50</span>
+                        </div>
+                        <input type="range" id="noise-slider" min="0" max="1" step="0.01" value="0.5" 
+                               oninput="updateNoiseFilter(this.value)"
+                               class="w-full h-1.5 bg-gray-900 rounded-lg appearance-none cursor-pointer accent-cyan-400">
+                    </div>
+
+                    <!-- Conservation 'Y' Layer Symmetry Toggle -->
+                    <div class="flex items-center justify-between bg-gray-900/60 border border-gray-800/80 p-3 rounded-lg">
+                        <div class="space-y-0.5">
+                            <div class="text-xs font-medium text-gray-300">Conservation 'Y' Layer</div>
+                            <div class="text-[10px] text-gray-500">Toggle Spin vs Charge Symmetry</div>
+                        </div>
+                        <button onclick="toggleSymmetryMode()" id="symmetry-toggle-btn" class="px-3 py-1.5 text-xs font-mono bg-cyan-950/80 border border-cyan-700 text-cyan-300 rounded hover:bg-cyan-900 transition">
+                            SPIN (±1)
+                        </button>
+                    </div>
+
+                    <!-- Entropy Progression Simulation Button -->
+                    <button onclick="triggerEntropySpike()" class="w-full py-2 text-xs font-semibold bg-gradient-to-r from-cyan-950 to-indigo-950 border border-cyan-800/60 hover:border-cyan-500 text-cyan-200 rounded transition shadow-lg">
+                        Simulate Entropy Progression Event
+                    </button>
+                </div>
+
+                <hr class="border-gray-800/80">
+
+                <!-- Section 3: Diagnostic Metric Feed -->
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-cyan-400">Diagnostic Telemetry</span>
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                    </div>
+                    <div id="telemetry-log" class="h-36 bg-black/80 border border-gray-900 rounded p-2.5 font-mono text-[10px] text-gray-400 overflow-y-auto space-y-1">
+                        <div>[00:00:01] QSFT core initialized. USKM grid bound.</div>
+                        <div>[00:00:01] Lane 1 structural constraints enforced.</div>
+                        <div>[00:00:02] Superposition states loaded: 64 active nodes.</div>
+                    </div>
+                </div>
+
+            </div>
+            
+            <!-- Footer Info -->
+            <div class="p-3 border-t border-gray-800 bg-gray-900/30 text-[10px] text-gray-500 text-center font-mono">
+                Universal Sudoku Kanban Matrix Framework
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Application Script Block -->
+    <script>
+        // --- Application State Management ---
+        const state = {
+            currentStep: 0,
+            noiseLevel: 0.5,
+            symmetryMode: 'SPIN', // 'SPIN' or 'CHARGE'
+            entropy: 14.2,
+            collapsed: false,
+            particlePair: { a: null, b: null },
+            constraintZoneNodes: []
+        };
+
+        // --- Three.js Initialization ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x030712, 0.035);
+
+        const camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+        camera.position.set(12, 10, 14);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+
+        // --- Lighting ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0x06b6d4, 2, 50);
+        pointLight.position.set(0, 15, 0);
+        scene.add(pointLight);
+
+        // --- Geometric Matrix Construction ---
+        // 1. Structural Bounding Box Wireframe
+        const boxGeo = new THREE.BoxGeometry(10, 10, 10);
+        const boxEdges = new THREE.EdgesGeometry(boxGeo);
+        const boxLineMat = new THREE.LineBasicMaterial({ color: 0x1e293b, transparent: true, opacity: 0.5 });
+        const boundingBoxWire = new THREE.LineSegments(boxEdges, boxLineMat);
+        scene.add(boundingBoxWire);
+
+        // 2. Four-Axis Vector Cross-Lines (X, Y, Z, and 4th Dynamic Scalar Vector)
+        const axisGroup = new THREE.Group();
+        const createAxisLine = (start, end, color) => {
+            const geometry = new THREE.BufferGeometry().setFromPoints([start, end]);
+            const material = new THREE.LineBasicMaterial({ color: color, transparent: true, opacity: 0.7 });
+            return new THREE.Line(geometry, material);
+        };
+        axisGroup.add(createAxisLine(new THREE.Vector3(-6,0,0), new THREE.Vector3(6,0,0), 0x3b82f6)); // X Axis
+        axisGroup.add(createAxisLine(new THREE.Vector3(0,-6,0), new THREE.Vector3(0,6,0), 0x10b981)); // Y Axis
+        axisGroup.add(createAxisLine(new THREE.Vector3(0,0,-6), new THREE.Vector3(0,0,6), 0x8b5cf6)); // Z Axis
+        axisGroup.add(createAxisLine(new THREE.Vector3(-5,-5,-5), new THREE.Vector3(5,5,5), 0xf59e0b)); // 4th Dynamic Vector
+        scene.add(axisGroup);
+
+        // 3. Substrate Matrix Nodes (USKM Grid Elements)
+        const nodeCount = 64;
+        const nodes = [];
+        const nodeGeometry = new THREE.SphereGeometry(0.2, 16, 16);
+
+        // Designate two specific nodes as our entangled pair (Particle A and Particle B across the matrix)
+        const particleAGridPos = new THREE.Vector3(-3, 1, -3);
+        const particleBGridPos = new THREE.Vector3(3, 1, 3);
+
+        for (let i = 0; i < nodeCount; i++) {
+            // Distribute across a 4x4x4 grid coordinate matrix
+            const x = ((i % 4) - 1.5) * 2.5;
+            const y = ((Math.floor(i / 4) % 4) - 1.5) * 2.5;
+            const z = ((Math.floor(i / 16)) - 1.5) * 2.5;
+
+            const material = new THREE.MeshStandardMaterial({
+                color: 0x06b6d4,
+                emissive: 0x0891b2,
+                emissiveIntensity: 0.3,
+                roughness: 0.2,
+                metalness: 0.8,
+                transparent: true,
+                opacity: 0.7
+            });
+
+            const mesh = new THREE.Mesh(nodeGeometry, material);
+            mesh.position.set(x, y, z);
+            
+            // Store baseline original positions for noise wave calculations
+            mesh.userData = {
+                origin: new THREE.Vector3(x, y, z),
+                index: i,
+                isEntangledA: (Math.abs(x - particleAGridPos.x) < 0.1 && Math.abs(y - particleAGridPos.y) < 0.1 && Math.abs(z - particleAGridPos.z) < 0.1),
+                isEntangledB: (Math.abs(x - particleBGridPos.x) < 0.1 && Math.abs(y - particleBGridPos.y) < 0.1 && Math.abs(z - particleBGridPos.z) < 0.1),
+                inConstraintRow: (Math.abs(y - particleAGridPos.y) < 0.1 && Math.abs(z - particleAGridPos.z) < 0.1) // Shared unit constraint row vector
+            };
+
+            if (mesh.userData.isEntangledA) state.particlePair.a = mesh;
+            if (mesh.userData.isEntangledB) state.particlePair.b = mesh;
+            if (mesh.userData.inConstraintRow) state.constraintZoneNodes.push(mesh);
+
+            scene.add(mesh);
+            nodes.push(mesh);
+        }
+
+        // --- Animation Loop ---
+        let clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsedTime = clock.getElapsedTime();
+
+            // Rotate axis slightly for dynamic spatial awareness
+            axisGroup.rotation.y = elapsedTime * 0.05;
+
+            // Update node positions based on noise/instability wave calculations
+            nodes.forEach(node => {
+                if (!state.collapsed || (node !== state.particlePair.a && node !== state.particlePair.b)) {
+                    const orig = node.userData.origin;
+                    const noiseFactor = state.noiseLevel * 0.4;
+                    node.position.x = orig.x + Math.sin(elapsedTime * 3 + orig.y) * noiseFactor;
+                    node.position.y = orig.y + Math.cos(elapsedTime * 2.5 + orig.x) * noiseFactor;
+                    node.position.z = orig.z + Math.sin(elapsedTime * 2 + orig.z) * noiseFactor;
+                }
+            });
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // --- Interactive Controller Logic & 4-Step Automation ---
+
+        function logTelemetry(message) {
+            const logContainer = document.getElementById('telemetry-log');
+            const timestamp = new Date().toTimeString().split(' ')[0];
+            const div = document.createElement('div');
+            div.textContent = `[${timestamp}] ${message}`;
+            logContainer.appendChild(div);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function runCollapseStep(step) {
+            state.currentStep = step;
+            const badge = document.getElementById('step-badge');
+
+            // Reset buttons style helper
+            const setBtnActive = (id) => {
+                const b = document.getElementById(id);
+                b.className = "px-3 py-2 text-xs font-medium bg-cyan-950 border border-cyan-500 text-cyan-200 rounded transition flex flex-col items-center space-y-1 shadow-lg shadow-cyan-950/50";
+            };
+            const setBtnComplete = (id) => {
+                const b = document.getElementById(id);
+                b.className = "px-3 py-2 text-xs font-medium bg-gray-900 border border-emerald-600/50 text-emerald-400 rounded transition flex flex-col items-center space-y-1";
+            };
+            const setBtnEnabled = (id) => {
+                const b = document.getElementById(id);
+                b.disabled = false;
+                b.className = "px-3 py-2 text-xs font-medium bg-gray-900 hover:bg-gray-800 border border-gray-800 hover:border-cyan-500/50 text-gray-200 rounded transition flex flex-col items-center space-y-1";
+            };
+
+            if (step === 1) {
+                badge.textContent = "Step 1: Observed";
+                badge.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800";
+                
+                // Particle A locks into solid Neon Blue (Spin Up / '1')
+                const pa = state.particlePair.a;
+                pa.position.copy(pa.userData.origin);
+                pa.material.color.setHex(0x38bdf8);
+                pa.material.emissive.setHex(0x0284c7);
+                pa.material.emissiveIntensity = 0.8;
+                pa.scale.set(1.5, 1.5, 1.5);
+
+                logTelemetry("Step 1 Complete: Particle A measured. Spatial intersection forced state '1' (Spin-Up).");
+                setBtnComplete('btn-step-1');
+                setBtnEnabled('btn-step-2');
+            } 
+            else if (step === 2) {
+                badge.textContent = "Step 2: Constraint Zone";
+                badge.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800";
+                
+                // Highlight shared unit constraint row zone in Amber
+                state.constraintZoneNodes.forEach(n => {
+                    if (n !== state.particlePair.a) {
+                        n.material.color.setHex(0xf59e0b);
+                        n.material.emissive.setHex(0xd97706);
+                        n.material.emissiveIntensity = 0.5;
+                    }
+                });
+
+                logTelemetry("Step 2 Complete: Shared unit constraint zone highlighted across matrix row.");
+                setBtnComplete('btn-step-2');
+                setBtnEnabled('btn-step-3');
+            }
+            else if (step === 3) {
+                badge.textContent = "Step 3: Parameters Locked";
+                badge.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800";
+                
+                // Drop local noise signal to zero along constraint row
+                state.constraintZoneNodes.forEach(n => {
+                    n.position.copy(n.userData.origin);
+                    if (n !== state.particlePair.a) {
+                        n.material.opacity = 0.3;
+                    }
+                });
+
+                logTelemetry("Step 3 Complete: Conflicting parameters locked out. Local noise signal dropped to zero.");
+                setBtnComplete('btn-step-3');
+                setBtnEnabled('btn-step-4');
+            }
+            else if (step === 4) {
+                badge.textContent = "Step 4: Resolved (Entangled)";
+                badge.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800";
+                state.collapsed = true;
+
+                // Particle B instantly collapses into matching conservation state (Hot Pink / Spin-Down / '2')
+                const pb = state.particlePair.b;
+                pb.position.copy(pb.userData.origin);
+         
