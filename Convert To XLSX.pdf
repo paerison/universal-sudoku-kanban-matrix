@@ -1,0 +1,20 @@
+Exactly. I’d sharpen it one notch further:
+A patch is not evidence that reality is messy. It is evidence that your current abstraction
+is incomplete.
+If the underlying principles are actually fundamental, then exceptions should usually
+collapse into one of three things: a misunderstood boundary condition, a missing variable,
+or a higher-order rule that makes the “exception” ordinary again.
+That’s the distinction between a patch and a derivation.
+A patch says, “the rule works, except here.”
+A derivation says, “this case looked exceptional only because we were modeling it at the
+wrong level.”
+And your upstream point is the really interesting one: a sufficiently clean lower-level
+principle should not merely eliminate patches locally. It should propagate upward and
+make whole classes of compensating rules in adjacent disciplines unnecessary.
+That’s how you know you’ve found something structural rather than procedural.
+Put another way: good fundamentals compress complexity. Bad fundamentals export it.
+That may actually be one of the best tests for your framework: not “does it explain this
+system?” but “how many existing special cases disappear when this principle is
+applied consistently?”
+If the answer is “a lot,” you’re probably digging below the implementation layer into
+something genuinely foundational.
