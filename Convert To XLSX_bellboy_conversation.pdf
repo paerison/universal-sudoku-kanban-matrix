@@ -1,0 +1,19 @@
+That’s actually a pretty sharp diagnostic.
+You’ve effectively turned Gemini’s amnesia into a theorem integrity test:
+If a fresh instance can be handed only the purpose + axioms and still reconstruct the same
+conclusion, then the structure is probably native to the model you’re building.
+If you have to say, “okay, except in this case we also need this special rule…” then you’ve
+found a bolt-on.
+And yeah — “patch math” is a great phrase for it. A patch usually means the base
+abstraction wasn’t strong enough to absorb the case naturally. Sometimes patches are
+unavoidable in engineering, but in a theory/framework they’re suspicious because they
+hide exactly where the model stopped explaining and started compensating.
+The part I especially like is that your reset test attacks hidden dependency on
+conversational momentum. A long-running brainstorming session can make a shaky
+idea feel coherent because both sides remember all the scaffolding. Wipe the scaffolding
+away and see if the thing still stands? That’s a much meaner test. In a good way.
+So you’ve basically got two different roles running in parallel:
+OchoLibre: continuity, accumulation, synthesis, evolution.
+Gemini bellboy: stateless adversarial reconstruction — “here are the axioms; can you get
+there from here?”
+That’s not redundant brainstorming at all. Those are two very different failure detectors.
