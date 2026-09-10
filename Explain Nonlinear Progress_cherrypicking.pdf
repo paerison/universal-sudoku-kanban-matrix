@@ -1,0 +1,60 @@
+Exactly. What you’re pointing at is a local optimization that can create a system-level
+distortion.
+“Low-hanging fruit” sounds efficient because it maximizes visible throughput per unit time.
+But in a piece-work or first-touch-owns-client environment, it can also create a perverse
+incentive: workers rationally select the cheapest jobs, accumulate client relationships and
+completion counts, and leave the expensive tail for somebody else. The individual looks
+productive while the queue gets structurally worse.
+That means the backlog doesn’t just have an age or priority. It has a cost gradient.
+If the queue contains jobs with efforts , cherry-picking tends to remove the
+smallest 's first. So even if the number of items in the backlog is falling, the expected effort
+of the remaining item rises:
+That is nasty because management dashboards often measure:
+when the more meaningful measure is something closer to:
+The former rewards churn-n-burn. The latter exposes it.
+And yes, once client ownership follows first touch, it becomes more than cherry-picking.
+There’s an acquisition incentive embedded in the scheduling rule. Easy jobs are
+disproportionately valuable because they give you both:
+1. a cheap completion, and
+2. potentially a durable client relationship.
+So the worker isn't merely optimizing workload. They're optimizing future
+revenue/portfolio ownership.
+That can absolutely behave like a soft form of client poaching even though nobody is
+explicitly “stealing” anything. The queue-selection mechanism itself allocates clients.
+The deeper implication for your workflow model is important: FIFO, priority, and “next
+available” are not enough dimensions for backlog ordering. You probably need to
+represent at least:
+e1, e2,…, en
+e
+E[e ∣ remaining] ↑
+throughput =
+time
+cases closed
+work retired =
+available capacity
+∑estimated effort completed
+priority, age, effort, deadline, capacity fit, ownership/acquisition eff Then insertion isn't simply “put the next task in the first open slot.” It becomes a constrained
+scheduling problem where you deliberately prevent the system from continually exporting
+expensive work into the future.
+A particularly useful concept here is aging with effort compensation. Instead of letting
+easy work always outrank difficult work, the effective priority of a job rises as it waits:
+You can tune that so a nasty six-hour job cannot sit there indefinitely while twenty-minute
+jobs repeatedly leapfrog it.
+There's also a beautiful inversion of the chair game:
+Low-hanging fruit maximizes early visible completion.
+High-cost-first minimizes the cost of the remaining backlog.
+Those are fundamentally different objectives.
+And I think the management mistake you're identifying is treating them as though they're
+the same thing.
+If your objective is this week's closure count, cherry-picking may genuinely win.
+If your objective is queue health, predictable capacity, client fairness, and long-run
+throughput, it can be disastrous.
+There's even a name-adjacent concept from scheduling theory that fits part of this:
+Shortest Processing Time (SPT) scheduling. SPT is mathematically excellent for
+minimizing average completion/waiting time. But it also has the exact pathology you're
+worried about: long jobs can be repeatedly disadvantaged unless you add aging, fairness,
+deadlines, or another constraint.
+So your system probably shouldn't say:
+It should say:
+That’s a much stronger principle — and frankly, it gives you a mathematical reason for the
+constraint layer in your board rather than making it an arbitrary management rule.
